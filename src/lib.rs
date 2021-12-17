@@ -9,7 +9,7 @@ include!("bindings.rs");
 
 pub struct Context {
     pub window: *mut SDL_Window,
-    context: SDL_GLContext,
+    _context: SDL_GLContext,
 }
 
 impl Context {
@@ -33,10 +33,16 @@ impl Context {
                 SDL_Quit();
                 Err(())
             } else {
-                let context = SDL_GL_CreateContext(window);
-                SDL_GL_MakeCurrent(window, context);
-                Ok(Context { window, context })
+                let _context = SDL_GL_CreateContext(window);
+                SDL_GL_MakeCurrent(window, _context);
+                Ok(Context { window, _context })
             }
+        }
+    }
+
+    pub fn swap(&self) {
+        unsafe {
+            SDL_GL_SwapWindow(self.window);
         }
     }
 }
