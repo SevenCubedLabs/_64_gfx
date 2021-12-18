@@ -55,23 +55,23 @@ pub struct Vertex {
 }
 
 pub struct Mesh {
-    vertices: Vec<Vertex>,
+    _vertices: Vec<Vertex>,
     indices: Vec<u32>,
     VAO: GLuint,
-    VBO: GLuint,
+    _VBO: GLuint,
     EBO: GLuint,
 }
 
 impl Mesh {
-    pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
+    pub fn new(_vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
         unsafe {
             let mut VAO: GLuint = 0;
             glGenVertexArrays(1, &mut VAO);
             glBindVertexArray(VAO);
 
-            let mut VBO: GLuint = 0;
-            glGenBuffers(1, &mut VBO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            let mut _VBO: GLuint = 0;
+            glGenBuffers(1, &mut _VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, _VBO);
             glVertexAttribPointer(
                 0,
                 3,
@@ -83,8 +83,8 @@ impl Mesh {
             glEnableVertexAttribArray(0);
             glBufferData(
                 GL_ARRAY_BUFFER,
-                (core::mem::size_of::<Vertex>() * vertices.len()) as _,
-                vertices.as_ptr() as *const core::ffi::c_void,
+                (core::mem::size_of::<Vertex>() * _vertices.len()) as _,
+                _vertices.as_ptr() as *const core::ffi::c_void,
                 GL_STATIC_DRAW,
             );
 
@@ -99,10 +99,10 @@ impl Mesh {
             );
 
             Self {
-                vertices,
+                _vertices,
                 indices,
                 VAO,
-                VBO,
+                _VBO,
                 EBO,
             }
         }
