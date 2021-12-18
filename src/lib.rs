@@ -7,6 +7,9 @@ mod ctypes;
 
 include!("bindings.rs");
 
+extern crate alloc;
+use alloc::vec::Vec;
+
 pub struct Context {
     pub window: *mut SDL_Window,
     _context: SDL_GLContext,
@@ -43,6 +46,78 @@ impl Context {
     pub fn swap(&self) {
         unsafe {
             SDL_GL_SwapWindow(self.window);
+        }
+    }
+}
+
+pub struct Vertex {
+    pub position: [f32; 3],
+}
+
+pub struct Mesh {
+    vertices: Vec<Vertex>,
+    indices: Vec<u32>,
+    VAO: GLuint,
+    VBO: GLuint,
+    EBO: GLuint,
+}
+
+impl Mesh {
+    pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
+        unsafe {
+            let mut VAO: GLuint = 0;
+            glGenVertexArrays(1, &mut VAO);
+            glBindVertexArray(VAO);
+
+            let mut VBO: GLuint = 0;
+            glGenBuffers(1, &mut VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glVertexAttribPointer(
+                0,
+                3,
+                GL_FLOAT,
+                GL_FALSE as _,
+                3 * core::mem::size_of::<f32>() as i32,
+                0 as *const core::ffi::c_void,
+            );
+            glEnableVertexAttribArray(0);
+            glBufferData(
+                GL_ARRAY_BUFFER,
+                (core::mem::size_of::<Vertex>() * vertices.len()) as _,
+                vertices.as_ptr() as *const core::ffi::c_void,
+                GL_STATIC_DRAW,
+            );
+
+            let mut EBO: GLuint = 0;
+            glGenBuffers(1, &mut EBO);
+            glBindBuffer(GL_ARRAY_BUFFER, EBO);
+            glBufferData(
+                GL_ARRAY_BUFFER,
+                (core::mem::size_of::<u32>() * indices.len()) as _,
+                indices.as_ptr() as *const core::ffi::c_void,
+                GL_STATIC_DRAW,
+            );
+
+            Self {
+                vertices,
+                indices,
+                VAO,
+                VBO,
+                EBO,
+            }
+        }
+    }
+
+    pub fn draw(&self) {
+        unsafe {
+            glBindVertexArray(self.VAO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.EBO);
+            glDrawElements(
+                GL_TRIANGLES,
+                self.indices.len() as _,
+                GL_UNSIGNED_INT,
+                0 as *const core::ffi::c_void,
+            );
         }
     }
 }
